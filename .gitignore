@@ -1,0 +1,8 @@
+# 忽略编译后的文件
+target
+# 忽略日志文件
+logs
+
+#忽略idea 配置
+.idea
+*.iml
