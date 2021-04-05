@@ -1,5 +1,7 @@
 package javax.test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithAnnotations;
+
 /**
  * @author SFF
  * @version 1.0.0
@@ -8,4 +10,8 @@ package javax.test;
  */
 
 public class TestJava {
+
+    public static void main(String[] args) {
+
+    }
 }
