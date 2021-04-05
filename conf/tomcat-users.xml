@@ -47,4 +47,5 @@
     <user username="tomcat2" password="tomcat"  roles="manager-gui"/>
     <user username="tomcat3" password="tomcat"  roles="manager-gui"/>
     <user username="tomcat4" password="tomcat"  roles="manager-gui"/>
+    <user username="tomcat5" password="tomcat"  roles="manager-gui"/>
 </tomcat-users>
