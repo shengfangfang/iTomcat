@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * perhaps even which Wrapper) should be utilized to process this request.
  * <p>
  * The parent Container attached to a Host is generally an Engine, but may
- * be some other implementation, or may be omitted if it is not necessary.
+ * be some other implementation, or may be omitted if it is not nec1essary.
  * <p>
  * The child containers attached to a Host are generally implementations
  * of Context (representing an individual servlet context).
