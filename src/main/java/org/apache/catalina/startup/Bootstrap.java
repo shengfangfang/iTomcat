@@ -55,13 +55,16 @@ public final class Bootstrap {
     private static final Object daemonLock = new Object();
     private static volatile Bootstrap daemon = null;
 
+
+    //安装目录
     private static final File catalinaBaseFile;
+    //实力目录
     private static final File catalinaHomeFile;
 
     private static final Pattern PATH_PATTERN = Pattern.compile("(\"[^\"]*\")|(([^,])*)");
 
     static {
-        // Will always be non-null
+        // 使用目录  idaa 调试的时候设置的项目目录
         String userDir = System.getProperty("user.dir");
 
         // Home first
@@ -247,7 +250,7 @@ public final class Bootstrap {
      * @throws Exception Fatal initialization error
      */
     public void init() throws Exception {
-
+        //初始化类加载器
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -429,7 +432,8 @@ public final class Bootstrap {
     /**
      * Main method and entry point when starting Tomcat via the provided
      * scripts.
-     *
+     * 通过提供的脚本启动Tomcat时的主要方法和入口点。
+     * 要处理的命令行参数
      * @param args Command line arguments to be processed
      */
     public static void main(String args[]) {
@@ -437,6 +441,7 @@ public final class Bootstrap {
         synchronized (daemonLock) {
             if (daemon == null) {
                 // Don't set daemon until init() has completed
+                System.out.println(" init  Bootstrap ..");
                 Bootstrap bootstrap = new Bootstrap();
                 try {
                     bootstrap.init();
