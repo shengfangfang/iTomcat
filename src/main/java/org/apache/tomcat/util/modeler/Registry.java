@@ -316,7 +316,9 @@ public class Registry implements RegistryMBean, MBeanRegistration {
      */
     public ManagedBean findManagedBean(String name) {
         // XXX Group ?? Use Group + Type
+        System.out.println("descriptors :" + descriptors.size());
         ManagedBean mb = descriptors.get(name);
+        System.out.println("Mbean  name:"+ name +";  bean is :" + mb);
         if (mb == null)
             mb = descriptorsByClass.get(name);
         return mb;

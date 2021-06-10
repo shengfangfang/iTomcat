@@ -142,7 +142,7 @@ public final class ClassLoaderFactory {
     /**
      * Create and return a new class loader, based on the configuration
      * defaults and the specified directory paths:
-     *
+     * 根据配置默认值和指定的目录路径，创建并返回一个新的类加载器：
      * @param repositories List of class directories, jar files, jar directories
      *                     or URLS that should be added to the repositories of
      *                     the class loader.
@@ -308,6 +308,10 @@ public final class ClassLoaderFactory {
         JAR,
         URL
     }
+//    DIR：表示整个目录下的资源，包括所有clsss、jar包及其它类型资源。
+//    GLOB：表示整个目录下所有jar包资源，仅仅是.jar后缀的资源。
+//    JAR：表示单个jar包资源。
+//    URL：表示网络上得某个jar包资源
 
     public static class Repository {
         private final String location;

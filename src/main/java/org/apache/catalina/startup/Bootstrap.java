@@ -55,13 +55,19 @@ public final class Bootstrap {
     private static final Object daemonLock = new Object();
     private static volatile Bootstrap daemon = null;
 
+
+    //安装目录
     private static final File catalinaBaseFile;
+    //实力目录
     private static final File catalinaHomeFile;
 
     private static final Pattern PATH_PATTERN = Pattern.compile("(\"[^\"]*\")|(([^,])*)");
 
     static {
-        // Will always be non-null
+
+        // 使用目录  idaa 调试的时候设置的项目目录
+
+        // Will always be non-null  获取用户目录
         String userDir = System.getProperty("user.dir");
 
         // Home first
@@ -79,7 +85,7 @@ public final class Bootstrap {
 
         if (homeFile == null) {
             // First fall-back. See if current directory is a bin directory
-            // in a normal Tomcat install
+            // in a normal Tomcat install  第一次回退。查看当前目录是否是普通Tomcat安装中的bin目录
             File bootstrapJar = new File(userDir, "bootstrap.jar");
 
             if (bootstrapJar.exists()) {
@@ -93,7 +99,7 @@ public final class Bootstrap {
         }
 
         if (homeFile == null) {
-            // Second fall-back. Use current directory
+            // Second fall-back. Use current directory  第二次回退。使用当前目录
             File f = new File(userDir);
             try {
                 homeFile = f.getCanonicalFile();
@@ -105,8 +111,8 @@ public final class Bootstrap {
         catalinaHomeFile = homeFile;
         System.setProperty(
                 Constants.CATALINA_HOME_PROP, catalinaHomeFile.getPath());
-
-        // Then base
+        //设置catalina 的文件位置   我的想法是idea 设置的工作目录就是前面的user.dir 就是设置的是tomcat 的启动目录、运行目录 、实例目录
+        // Then base  // 默认情况下  安装和实例目录是一个文件夹  其实安装目录和工作目录是可以不一样的
         String base = System.getProperty(Constants.CATALINA_BASE_PROP);
         if (base == null) {
             catalinaBaseFile = catalinaHomeFile;
@@ -130,7 +136,7 @@ public final class Bootstrap {
      * Daemon reference.
      */
     private Object catalinaDaemon = null;
-
+    // 一般情况下  这三个都是一个  TODO  为什么要三个？？？？
     ClassLoader commonLoader = null;
     ClassLoader catalinaLoader = null;
     ClassLoader sharedLoader = null;
@@ -139,8 +145,11 @@ public final class Bootstrap {
     // -------------------------------------------------------- Private Methods
 
 
+    /**
+     * 初始化类加载器
+     */
     private void initClassLoaders() {
-        try {
+        try { //获取类加载器  加载lib 下资源
             commonLoader = createClassLoader("common", null);
             if (commonLoader == null) {
                 // no config file, default to this loader - we might be in a 'single' env.
@@ -198,7 +207,7 @@ public final class Bootstrap {
 
     /**
      * System property replacement in the given string.
-     *
+     * 给定字符串中的系统属性替换
      * @param str The original string
      * @return the modified string
      */
@@ -244,10 +253,11 @@ public final class Bootstrap {
 
     /**
      * Initialize daemon.
+     * 初始化守护线程  初始化错误的话 服务就结束了
      * @throws Exception Fatal initialization error
      */
     public void init() throws Exception {
-
+        //初始化类加载器   catalinaLoader commonLoader sharedLoader
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -429,7 +439,8 @@ public final class Bootstrap {
     /**
      * Main method and entry point when starting Tomcat via the provided
      * scripts.
-     *
+     * 通过提供的脚本启动Tomcat时的主要方法和入口点。
+     * 要处理的命令行参数
      * @param args Command line arguments to be processed
      */
     public static void main(String args[]) {
@@ -437,6 +448,7 @@ public final class Bootstrap {
         synchronized (daemonLock) {
             if (daemon == null) {
                 // Don't set daemon until init() has completed
+                System.out.println(" init  Bootstrap ..");
                 Bootstrap bootstrap = new Bootstrap();
                 try {
                     bootstrap.init();
@@ -563,7 +575,7 @@ public final class Bootstrap {
         return t;
     }
 
-    // Protected for unit testing
+    // Protected for unit testing  根据规则获取路径
     protected static String[] getPaths(String value) {
 
         List<String> result = new ArrayList<>();

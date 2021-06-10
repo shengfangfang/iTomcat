@@ -55,7 +55,7 @@ public class CatalinaProperties {
 
 
     /**
-     * Load properties.
+     * Load properties. 加载配置文件  catalina.properties  catalina.config
      */
     private static void loadProperties() {
 

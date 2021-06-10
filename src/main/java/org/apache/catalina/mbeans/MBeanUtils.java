@@ -136,7 +136,7 @@ public class MBeanUtils {
 
 
     /**
-     * Create, register, and return an MBean for this
+     * Create, register, and return an MBean for this   为此创建，注册和返回MBean
      * <code>ContextResource</code> object.
      *
      * @param resource The ContextResource to be managed
@@ -162,7 +162,6 @@ public class MBeanUtils {
         }
         mserver.registerMBean(mbean, oname);
         return mbean;
-
     }
 
 

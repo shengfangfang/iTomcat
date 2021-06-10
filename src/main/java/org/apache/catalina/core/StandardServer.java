@@ -798,13 +798,13 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-
+        //注册自己
         super.initInternal();
 
         // Register global String cache
         // Note although the cache is global, if there are multiple Servers
         // present in the JVM (may happen when embedding) then the same cache
-        // will be registered under multiple names
+        // will be registered under multiple names   注册全局字符串缓存注意尽管缓存是全局的，但如果JVM中存在多个服务器（嵌入时可能会发生），则相同的缓存将以多个名称注册。
         onameStringCache = register(new StringCache(), "type=StringCache");
 
         // Register the MBeanFactory
@@ -812,7 +812,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         factory.setContainer(this);
         onameMBeanFactory = register(factory, "type=MBeanFactory");
 
-        // Register the naming resources
+        // Register the naming resources  注册命名资源
         globalNamingResources.init();
 
         // Populate the extension validator with JARs from common and shared
