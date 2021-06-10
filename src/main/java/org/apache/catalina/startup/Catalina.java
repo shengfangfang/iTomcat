@@ -631,7 +631,7 @@ public class Catalina {
         getServer().setCatalinaHome(Bootstrap.getCatalinaHomeFile());
         getServer().setCatalinaBase(Bootstrap.getCatalinaBaseFile());
 
-        // Stream redirection
+        // Stream redirection 流重定向
         initStreams();
 
         // Start the new server

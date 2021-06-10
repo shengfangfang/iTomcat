@@ -21,7 +21,7 @@ package org.apache.catalina.startup;
  * <br>
  * Note that some values include a leading '/' and that some do not. This is
  * intentional based on how the values are used.
- *
+ *  一些常量  标识一些文件的位置
  * @author Craig R. McClanahan
  */
 public final class Constants {
@@ -38,12 +38,12 @@ public final class Constants {
 
     /**
      * A dummy value used to suppress loading the default web.xml file.
-     *
+     * 一个虚拟值，用于禁止加载默认的web.xml文件
      * <p>
      * It is useful when embedding Tomcat, when the default configuration is
      * done programmatically, e.g. by calling
      * <code>Tomcat.initWebappDefaults(context)</code>.
-     *
+     * 当以编程方式完成默认配置时，例如在嵌入Tomcat时，它很有用。通过调用<code> Tomcat.initWebappDefaults（context）</ code>。
      * @see Tomcat
      */
     public static final String NoDefaultWebXml = "org/apache/catalina/startup/NO_DEFAULT_XML";
@@ -51,12 +51,17 @@ public final class Constants {
     /**
      * Name of the system property containing
      * the tomcat product installation path
+     * 包含tomcat产品安装路径的系统属性名称  属性key
      */
     public static final String CATALINA_HOME_PROP = "catalina.home";
 
     /**
      * Name of the system property containing
      * the tomcat instance installation path
+     * 包含tomcat实例安装路径的系统属性的名称
      */
     public static final String CATALINA_BASE_PROP = "catalina.base";
+
+//    CATALINA_HOME：是安装目录(lib目录和bin目录是共享的)
+//    CATALINA_BASE：是工作目录（除开lib目录和bin目录）
 }
