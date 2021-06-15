@@ -761,6 +761,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         globalNamingResources.start();
 
         // Start our defined Services
+        log.info("  15 放射调用 standartserver 的 startInternal 方法");
         synchronized (servicesLock) {
             for (Service service : services) {
                 service.start();
@@ -798,7 +799,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-
+        log.info(" 6. sstandardserver  开始初始化");
         super.initInternal();
 
         // Register global String cache
@@ -811,12 +812,12 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         MBeanFactory factory = new MBeanFactory();
         factory.setContainer(this);
         onameMBeanFactory = register(factory, "type=MBeanFactory");
-
+        log.warn("组件 globalNamingResources 开始初始化");
         // Register the naming resources
         globalNamingResources.init();
 
         // Populate the extension validator with JARs from common and shared
-        // class loaders
+        // class loaders  使用来自公共和共享的类加载器的JAR填充扩展验证器
         if (getCatalina() != null) {
             ClassLoader cl = getCatalina().getParentClassLoader();
             // Walk the class loader hierarchy. Stop at the system class loader.
@@ -842,6 +843,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
             }
         }
         // Initialize our defined Services
+        //一个server  对应于多个service
         for (Service service : services) {
             service.init();
         }

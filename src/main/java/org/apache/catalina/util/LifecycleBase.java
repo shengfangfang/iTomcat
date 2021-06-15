@@ -136,6 +136,10 @@ public abstract class LifecycleBase implements Lifecycle {
     }
 
 
+    /**
+     * 设计模式  模板方法
+     * @throws LifecycleException
+     */
     @Override
     public final synchronized void init() throws LifecycleException {
         log.warn(subClassType+":如果不是 NEW 状态  执行init()  方法就会抛出异常");

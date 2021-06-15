@@ -456,12 +456,15 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel> {
      */
     protected class Acceptor extends AbstractEndpoint.Acceptor {
 
+        /***
+         * nio 线程处理的具体实现
+         */
         @Override
         public void run() {
 
             int errorDelay = 0;
 
-            // Loop until we receive a shutdown command
+            // Loop until we receive a shutdown command 循环播放，直到收到关闭命令
             while (running) {
 
                 // Loop if endpoint is paused

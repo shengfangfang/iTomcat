@@ -1072,6 +1072,7 @@ public class Connector extends LifecycleMBeanBase  {
         }
 
         try {
+            log.info("11 . protocolHandler  http11nioprotocol  init"  );
             protocolHandler.init();
         } catch (Exception e) {
             throw new LifecycleException(
