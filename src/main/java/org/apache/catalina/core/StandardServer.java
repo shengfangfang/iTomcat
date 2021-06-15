@@ -817,6 +817,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
 
         // Populate the extension validator with JARs from common and shared
         // class loaders
+        //// 加载类（来自Catalina.properties，在Bootstrap的initClassLoader方法中将jar路径存放至Url类加载器并将此类加载器存放至Catalina中）
         if (getCatalina() != null) {
             ClassLoader cl = getCatalina().getParentClassLoader();
             // Walk the class loader hierarchy. Stop at the system class loader.
@@ -841,7 +842,13 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
                 cl = cl.getParent();
             }
         }
-        // Initialize our defined Services
+        // Initialize our defined Services  // 初始化所有Service
+        /**
+         * 一个 service <Service>元素则代表一个Engine元素以及一组与之相连的Connector元素。
+         * 是相当于是在Connertor 和Engine 外面包装了一层  组装在了一起 向外面提供服务
+         * 就是可以说是可以开启多个端口的监听  一提供的服务
+         * 一个Server 可以用多个service   service 都是基于StardandService
+         **/
         for (Service service : services) {
             service.init();
         }

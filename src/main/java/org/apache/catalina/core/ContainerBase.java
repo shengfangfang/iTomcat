@@ -1272,7 +1272,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
 
     /**
      * Start the background thread that will periodically check for
-     * session timeouts.
+     * session timeouts. 启动将定期检查会话超时的后台线程
      */
     protected void threadStart() {
 

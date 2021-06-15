@@ -531,7 +531,7 @@ public class MBeanUtils {
 
     }
 
-    /**
+    /**创建和配置（如有必要）并返回托管对象描述的注册表。
      * Create and configure (if necessary) and return the registry of
      * managed object descriptions.
      * @return the singleton registry
