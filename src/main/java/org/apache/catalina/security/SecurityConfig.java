@@ -85,8 +85,12 @@ public final class SecurityConfig{
      * @return an instance of that class.
      */
     public static SecurityConfig newInstance(){
+        //判断是否初始化了
         if (singleton == null) {
+            //加同步锁 该部分代码只能进来一次
             synchronized (singletonLock) {
+                //DCL 如果不添加做这一个判断的话 就是 可能多个线程在同步锁外面等着  第一个锁执行完成
+                // singleton 已经被实例化了 第二个线程获取到同步锁之后 会再次实例化破话了单利模式的性质
                 if (singleton == null) {
                     singleton = new SecurityConfig();
                 }

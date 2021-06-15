@@ -136,7 +136,7 @@ public class MBeanUtils {
 
 
     /**
-     * Create, register, and return an MBean for this
+     * Create, register, and return an MBean for this   为此创建，注册和返回MBean
      * <code>ContextResource</code> object.
      *
      * @param resource The ContextResource to be managed
@@ -162,7 +162,6 @@ public class MBeanUtils {
         }
         mserver.registerMBean(mbean, oname);
         return mbean;
-
     }
 
 
@@ -532,7 +531,7 @@ public class MBeanUtils {
 
     }
 
-    /**
+    /**创建和配置（如有必要）并返回托管对象描述的注册表。
      * Create and configure (if necessary) and return the registry of
      * managed object descriptions.
      * @return the singleton registry

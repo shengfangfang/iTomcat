@@ -1,0 +1,139 @@
+  根据一项或多项授权给 Apache 软件基金会 (ASF)
+  贡献者许可协议。请参阅随附的 NOTICE 文件
+  这项工作以获取有关版权所有权的其他信息。
+  ASF 根据 Apache 许可，版本 2.0 向您授予此文件的许可
+  （“许可证”）；除非符合以下规定，否则您不得使用此文件
+  许可证。您可以在以下网址获取许可证副本
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  除非适用法律要求或书面同意，否则软件
+  根据许可证分发的分发是按“原样”的基础分发的，
+  不作任何形式的明示或暗示的保证或条件。
+  请参阅许可证以了解管理权限的特定语言和
+  许可证下的限制。
+
+Tomcat启动顺序
+
+序列 1. 从命令行启动
+类：org.apache.catalina.startup.Bootstrap
+它能做什么：
+    a) 设置类加载器
+        commonLoader (common)-> System Loader
+        sharedLoader（共享）-> commonLoader -> System Loader
+        catalinaLoader(server) -> commonLoader -> System Loader
+        （默认情况下，commonLoader 用于
+         sharedLoader 和 serverLoader）
+    b) 加载启动类（反射）
+        org.apache.catalina.startup.Catalina
+        setParentClassloader -> sharedLoader
+        Thread.contextClassloader -> catalinaLoader
+    c) Bootstrap.daemon.init() 完成
+
+序列 2. 处理命令行参数（开始、停止）
+类：org.apache.catalina.startup.Bootstrap（假设命令->开始）
+它能做什么：
+    a) Catalina.setAwait(true);
+    b) Catalina.load()
+        b1) initDirs() -> 设置属性，如
+                          卡特琳娜之家
+                          catalina.base == catalina.home（大多数情况下）
+        b2) 初始化命名
+            setProperty（javax.naming.Context.INITIAL_CONTEXT_FACTORY，
+                    org.apache.naming.java.javaURLContextFactory -> 默认）
+        b3) createStartDigester()
+            为主 server.xml 元素配置摘要器，例如
+            org.apache.catalina.core.StandardServer（当然可以改变:)
+            org.apache.catalina.deploy.NamingResources
+                在 J2EE JNDI 树中存储命名资源
+            org.apache.catalina.LifecycleListener
+                实现主要组件的启动/停止事件
+            org.apache.catalina.core.StandardService
+                一组连接器的单个条目，
+                以便容器可以侦听多个连接器
+                即单项
+            org.apache.catalina.Connector
+                仅侦听传入请求的连接器
+            它还向摘要器添加了以下规则集
+                命名规则集
+                引擎规则集
+                主机规则集
+                上下文规则集
+        b4) 加载 server.xml 并使用摘要器对其进行解析
+            使用摘要器解析 server.xml 是自动的
+            XML 对象映射工具，将创建 server.xml 中定义的对象
+            实际容器的启动还没有开始。
+        b5) 将 System.out 和 System.err 分配给 SystemLogHandler 类
+        b6) 在所有组件上调用 initialize，这使得每个对象向
+            JMX 代理。
+            在过程调用期间，连接器还会初始化适配器。
+            适配器是执行请求预处理的组件。
+            典型的适配器是 HTTP1.1（如果没有指定协议，则默认，
+            org.apache.coyote.http11.Http11NioProtocol)
+            用于 mod_jk 等的 AJP1.3。
+
+    c) Catalina.start()
+        c1) 启动 NamingContext 并将所有 JNDI 引用绑定到其中
+        c2) 启动 <Server> 下的服务，它们是：
+            StandardService -> 启动引擎（ContainerBase -> Realm、Cluster 等）
+        c3) StandardHost（由服务启动）
+                配置一个 ErrorReportValve 为不同的 HTTP 做正确的 HTML 输出
+                错误代码
+                启动管道中的阀门（至少是 ErrorReportValve）
+                配置 StandardHostValve，
+                    这个阀门将 Webapp 类加载器绑定到线程上下文
+                    它还找到请求的会话
+                    并调用上下文管道
+                启动 HostConfig 组件
+                    这个组件部署了所有的 webapps
+                        (webapps & conf/Catalina/localhost/*.xml)
+                    HostConfig 将为您的上下文创建一个摘要器，这个摘要器
+                    然后将调用 ContextConfig.start()
+                        ContextConfig.start() 将处理默认的 web.xml (conf/web.xml)
+                        然后处理应用程序 web.xml (WEB-INF/web.xml)
+
+        c4) 在容器 (StandardEngine) 的生命周期内，有一个后台线程
+            不断检查上下文是否已更改。如果上下文发生变化（war 文件的时间戳，
+            上下文 xml 文件，web.xml）然后发出重新加载（停止/删除/部署/启动）
+
+    d) Tomcat 在 HTTP 端口上接收请求
+        d1) 请求由在 ThreadPoolExecutor 中等待的单独线程接收
+             班级。它正在等待常规 ServerSocket.accept() 方法中的请求。
+             当接收到请求时，该线程被唤醒。
+        d2) ThreadPoolExecutor 分配一个 TaskThread 来处理请求。
+            它还为 catalina 容器提供了一个 JMX 对象名称（我相信没有使用过）
+        d3) 在这种情况下处理请求的处理器是 Coyote Http11Processor，
+            并调用 process 方法。
+            同一个处理器也在继续检查套接字的输入流
+            直到达到保活点或连接断开。
+        d4) 使用内部缓冲区类 (Http11InputBuffer) 解析 HTTP 请求
+            缓冲区类解析请求行、标题等并将结果存储在一个
+            Coyote 请求（不是 HTTP 请求）此请求包含所有 HTTP 信息，例如
+            如服务器名、端口、方案等。
+        d5) 处理器包含对适配器的引用，在这种情况下它是
+            郊狼适配器。一旦请求被解析，Http11Processor
+            在适配器上调用 service()。在服务方法中，Request 包含一个
+            CoyoteRequest 和 CoyoteResponse（第一次为空）
+            CoyoteRequest(Response) 实现了 HttpRequest(Response) 和 HttpServletRequest(Response)
+            适配器解析所有内容并将其与请求、cookies、上下文相关联，通过一个
+            映射器等
+        d6) 当解析完成时，CoyoteAdapter 调用它的容器（StandardEngine）
+            并调用 invoke(request,response) 方法。
+            这将从引擎级别开始向 Catalina 容器发起 HTTP 请求
+        d7) StandardEngine.invoke() 只是调用容器 pipeline.invoke()
+        d8) 默认情况下，发动机只有一个阀门 StandardEngineValve，这个阀门只是
+            调用主机管道上的 invoke() 方法 (StandardHost.getPipeLine())
+        d9) StandardHost 默认有两个阀门，StandardHostValve 和 ErrorReportValve
+        d10) 标准主阀将正确的类加载器与当前线程相关联
+             它还检索与请求关联的管理器和会话（如果有）
+             如果有会话 access() 被调用以保持会话处于活动状态
+        d11) 之后，StandardHostValve 在关联的上下文上调用管道
+             随着请求。
+        d12) Context 管道调用的第一个阀门是 FormAuthenticator
+             阀门。然后调用 StandardContextValve。
+             StandardContextValve 调用与上下文关联的任何上下文侦听器。
+             接下来它调用 Wrapper 组件（StandardWrapperValve）上的管道
+        d13) 在 StandardWrapperValve 的调用过程中，JSP 包装器 (Jasper) 被调用
+             这将导致 JSP 的实际编译。
+             然后调用实际的 servlet。
+    e) servlet 类的调用

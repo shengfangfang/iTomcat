@@ -53,14 +53,22 @@ public final class Bootstrap {
      * Daemon object used by main.
      */
     private static final Object daemonLock = new Object();
+
+    //容器对象
     private static volatile Bootstrap daemon = null;
 
+
+    //安装目录
     private static final File catalinaBaseFile;
+    //实力目录
     private static final File catalinaHomeFile;
 
     private static final Pattern PATH_PATTERN = Pattern.compile("(\"[^\"]*\")|(([^,])*)");
 
     static {
+
+        // 使用目录  idaa 调试的时候设置的项目目录
+
         // Will always be non-null  获取用户目录
         String userDir = System.getProperty("user.dir");
 
@@ -131,6 +139,12 @@ public final class Bootstrap {
      */
     private Object catalinaDaemon = null;
     // 一般情况下  这三个都是一个  TODO  为什么要三个？？？？
+    /**
+     * @Author sff
+     * @Description  对于tomcat 来说  需要隔离tomcat 自身依赖的jar 每个应用公用的jar 每个应用需要隔离的jar 对
+     * 这些jar 隔离 区分
+     * @Date 11:41 2021/6/11
+     **/
     ClassLoader commonLoader = null;
     ClassLoader catalinaLoader = null;
     ClassLoader sharedLoader = null;
@@ -251,7 +265,9 @@ public final class Bootstrap {
      * @throws Exception Fatal initialization error
      */
     public void init() throws Exception {
-        //初始化类加载器   catalinaLoader commonLoader sharedLoader
+        // 相当于正式的tomcat 的开始 或者叫入口方法  初始化类加载器
+        //这里设置了 classLoader  就会吧ClassLoader 延伸到其所依赖的类中
+        // catalinaLoader commonLoader sharedLoader
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -261,6 +277,8 @@ public final class Bootstrap {
         // Load our startup class and call its process() method
         if (log.isDebugEnabled())
             log.debug("Loading startup class");
+        //为什么这里使用反射呢? 使用 catalinaLoader 去加载类 Catalina 那么Catalina 后续依赖的class 都会
+        //是有 这个classLoader  catalinaLoader 来加载  达到 jar 隔离的目的
         Class<?> startupClass = catalinaLoader.loadClass("org.apache.catalina.startup.Catalina");
         Object startupInstance = startupClass.getConstructor().newInstance();
         //使用反射生产Catalina 对象
@@ -438,7 +456,8 @@ public final class Bootstrap {
     /**
      * Main method and entry point when starting Tomcat via the provided
      * scripts.
-     *
+     * 通过提供的脚本启动Tomcat时的主要方法和入口点。
+     * 要处理的命令行参数
      * @param args Command line arguments to be processed
      */
     public static void main(String args[]) {
@@ -447,6 +466,7 @@ public final class Bootstrap {
             if (daemon == null) {
                 log.info("step 1 main..");
                 // Don't set daemon until init() has completed
+                System.out.println(" init  Bootstrap ..");
                 Bootstrap bootstrap = new Bootstrap();
                 try {
                     log.info(" 1 .bootstrap.init()");
@@ -490,6 +510,11 @@ public final class Bootstrap {
                 daemon.load(args);
                 log.info("所有组件 初始化 完成  开始调用 所有组件的start 方法");
                 //方法和 load 里面各个组件的初始化时差不多的顺序
+                //容器对象初始化  比如加载server.xml  配置文件等等
+                daemon.load(args);
+                log.warn("Server 加载完成 主要是解析Server.xml 文件 然后对文件内配置生成组件对象,在在对象内设置一些基于配置为配置 " +
+                        "然后再对组件使用JMX 注册  ");
+                log.warn("Server 开启中... 开启完成后使得组件可用");
                 daemon.start();
                 if (null == daemon.getServer()) {
                     System.exit(1);

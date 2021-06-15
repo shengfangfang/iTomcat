@@ -135,7 +135,9 @@ public class Catalina {
     // ----------------------------------------------------------- Constructors
 
     public Catalina() {
+        ////向Security注册访问权限
         setSecurityProtection();
+        //空方法，提前触发ExceptionUtils的加载
         ExceptionUtils.preload();
     }
 
@@ -295,7 +297,7 @@ public class Catalina {
         digester.setFakeAttributes(fakeAttributes);
         digester.setUseContextClassLoader(true);
 
-        // Configure the actions we will be using
+        // Configure the actions we will be using  第一个参数是标签
         digester.addObjectCreate("Server",
                                  "org.apache.catalina.core.StandardServer",
                                  "className");
@@ -304,6 +306,7 @@ public class Catalina {
                             "setServer",
                             "org.apache.catalina.Server");
 
+        //第一个参数是标签 第二个参数是参数对应的类对象
         digester.addObjectCreate("Server/GlobalNamingResources",
                                  "org.apache.catalina.deploy.NamingResourcesImpl");
         digester.addSetProperties("Server/GlobalNamingResources");
@@ -549,6 +552,7 @@ public class Catalina {
 
         //3.用digester解析server.xml文件，把配置文件中的配置解析成java对象
         //3.1.准备好用来解析server.xml文件需要用的digester。
+        // Create and execute our Digester 创建解析器 解析 Server.xml
         Digester digester = createStartDigester();
         log.info(" 5. 创建了digester 对象 用于解析server.xml");
 
@@ -611,7 +615,7 @@ public class Catalina {
                 }
                 return;
             }
-
+            //io    读取配置文件后解析配置文件
             try {
                 inputSource.setByteStream(inputStream);
                 digester.push(this);
@@ -641,7 +645,7 @@ public class Catalina {
         // Stream redirection 流重定向
         initStreams();
 
-        // Start the new server
+        // Start the new server  server 的实现是tomcat 中唯一的默认的实现是StardandServer
         try {
            // 执行server的init方法，start方法的准备方法 前面的leftCycle 又说
             System.out.println("StandardServer initing。。。。。。。");
@@ -851,6 +855,7 @@ public class Catalina {
      * Set the security package access/protection.
      */
     protected void setSecurityProtection(){
+        //获取SecurityConfig单例，SecurityConfig从catalina.properties文件中读取Security属性（没有则使用默认值）并设置到Security中
         SecurityConfig securityConfig = SecurityConfig.newInstance();
         securityConfig.setPackageDefinition();
         securityConfig.setPackageAccess();

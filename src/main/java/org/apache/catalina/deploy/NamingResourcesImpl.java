@@ -956,6 +956,7 @@ public class NamingResourcesImpl extends LifecycleMBeanBase
 
     @Override
     protected void initInternal() throws LifecycleException {
+        //注册自己
         super.initInternal();
 
         // Set this before we register currently known naming resources to avoid
@@ -966,8 +967,7 @@ public class NamingResourcesImpl extends LifecycleMBeanBase
             try {
                 MBeanUtils.createMBean(cr);
             } catch (Exception e) {
-                log.warn(sm.getString(
-                        "namingResources.mbeanCreateFail", cr.getName()), e);
+                log.warn(sm.getString( "namingResources.mbeanCreateFail", cr.getName()), e);
             }
         }
 

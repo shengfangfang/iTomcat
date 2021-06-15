@@ -1415,6 +1415,7 @@ public class StandardContext extends ContainerBase
             try {
                 Class<?> clazz = Class.forName(charsetMapperClass);
                 this.charsetMapper = (CharsetMapper) clazz.getConstructor().newInstance();
+                //this.charsetMapper = new CharsetMapper();
             } catch (Throwable t) {
                 ExceptionUtils.handleThrowable(t);
                 this.charsetMapper = new CharsetMapper();

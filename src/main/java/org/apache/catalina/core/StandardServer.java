@@ -800,12 +800,13 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
     @Override
     protected void initInternal() throws LifecycleException {
         log.info(" 6. sstandardserver  开始初始化");
+        //注册自己
         super.initInternal();
 
         // Register global String cache
         // Note although the cache is global, if there are multiple Servers
         // present in the JVM (may happen when embedding) then the same cache
-        // will be registered under multiple names
+        // will be registered under multiple names   注册全局字符串缓存注意尽管缓存是全局的，但如果JVM中存在多个服务器（嵌入时可能会发生），则相同的缓存将以多个名称注册。
         onameStringCache = register(new StringCache(), "type=StringCache");
 
         // Register the MBeanFactory
@@ -818,6 +819,12 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
 
         // Populate the extension validator with JARs from common and shared
         // class loaders  使用来自公共和共享的类加载器的JAR填充扩展验证器
+        // Register the naming resources  注册命名资源
+        globalNamingResources.init();
+
+        // Populate the extension validator with JARs from common and shared
+        // class loaders
+        //// 加载类（来自Catalina.properties，在Bootstrap的initClassLoader方法中将jar路径存放至Url类加载器并将此类加载器存放至Catalina中）
         if (getCatalina() != null) {
             ClassLoader cl = getCatalina().getParentClassLoader();
             // Walk the class loader hierarchy. Stop at the system class loader.
@@ -844,6 +851,13 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         }
         // Initialize our defined Services
         //一个server  对应于多个service
+        // Initialize our defined Services  // 初始化所有Service
+        /**
+         * 一个 service <Service>元素则代表一个Engine元素以及一组与之相连的Connector元素。
+         * 是相当于是在Connertor 和Engine 外面包装了一层  组装在了一起 向外面提供服务
+         * 就是可以说是可以开启多个端口的监听  一提供的服务
+         * 一个Server 可以用多个service   service 都是基于StardandService
+         **/
         for (Service service : services) {
             service.init();
         }
