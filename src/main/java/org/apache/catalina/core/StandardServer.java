@@ -814,9 +814,6 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         factory.setContainer(this);
         onameMBeanFactory = register(factory, "type=MBeanFactory");
         log.warn("组件 globalNamingResources 开始初始化");
-        // Register the naming resources
-        globalNamingResources.init();
-
         // Populate the extension validator with JARs from common and shared
         // class loaders  使用来自公共和共享的类加载器的JAR填充扩展验证器
         // Register the naming resources  注册命名资源

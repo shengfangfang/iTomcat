@@ -671,7 +671,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
             // Start the new component if necessary
             if (realm != null)
                 realm.setContainer(this);
-            if (getState().isAvailable() && (realm != null) &&
+            if (getState().isAvailable() &&   (realm != null) &&
                 (realm instanceof Lifecycle)) {
                 try {
                     ((Lifecycle) realm).start();

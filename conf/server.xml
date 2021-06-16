@@ -19,12 +19,10 @@
      define subcomponents such as "Valves" at this level.
      Documentation at /docs/config/server.html
  -->
-<<<<<<< HEAD
-<Server port="-1" shutdown="SHUTDOWN">
-=======
+<!--<Server port="-1" shutdown="SHUTDOWN">-->
+
 <Server port="18005" shutdown="SHUTDOWN" >
 <!--    当Tomcat启动时，该监听器记录Tomcat、Java和操作系统的信息。该监听器必须是配置的第一个监听器-->
->>>>>>> 4fa56ddacdc60e64d2e9a06dff44e7f83d3ae16b
   <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
   <!-- Security listener. Documentation at /docs/config/listeners.html
   <Listener className="org.apache.catalina.security.SecurityListener" />

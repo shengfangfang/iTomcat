@@ -26,6 +26,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.ComponentUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
 
@@ -43,12 +44,14 @@ public abstract class LifecycleBase implements Lifecycle {
 
     private static final StringManager sm = StringManager.getManager(LifecycleBase.class);
 
+    public static int FIREEVENTCOUNT = 0;
 
     /**
      * The list of registered LifecycleListeners for event notifications.
      * 用于事件通知的已注册LifecycleListener的列表。
      */
     private final List<LifecycleListener> lifecycleListeners = new CopyOnWriteArrayList<>();
+    private int lifecycleListenersCount = 0;
 
 
     /**
@@ -61,9 +64,9 @@ public abstract class LifecycleBase implements Lifecycle {
 
     public String subClassType = "";
 
-    public LifecycleBase( ) {
+    public LifecycleBase() {
         subClassType = this.getClass().getName();
-        log.warn("初始化完成,对象beanType:"+subClassType+"状态是："+state.name());
+        log.warn("初始化完成,对象beanType:" + subClassType + "状态是：" + state.name());
     }
 
     /**
@@ -73,8 +76,9 @@ public abstract class LifecycleBase implements Lifecycle {
      * the caller to handle or will it be logged instead?
      * 子类在{@link #initInternal（）}，{@link #startInternal（）} {@link #stopInternal（）} 或
      * {@link #destroyInternal（）}期间抛出的{@link LifecycleException}是重新扔给调用者处理还是将其记录下来？
+     *
      * @return {@code true} if the exception will be re-thrown, otherwise
-     *         {@code false}
+     * {@code false}
      */
     public boolean getThrowOnFailure() {
         return throwOnFailure;
@@ -101,6 +105,7 @@ public abstract class LifecycleBase implements Lifecycle {
     @Override
     public void addLifecycleListener(LifecycleListener listener) {
         lifecycleListeners.add(listener);
+        lifecycleListenersCount++;
     }
 
 
@@ -125,12 +130,15 @@ public abstract class LifecycleBase implements Lifecycle {
     /**
      * Allow sub classes to fire {@link Lifecycle} events.
      * 允许子类触发{@link Lifecycle}事件。
-     * @param type  Event type  事件的类型
-     * @param data  Data associated with event. 相关的数据
+     *
+     * @param type Event type  事件的类型
+     * @param data Data associated with event. 相关的数据
      */
     protected void fireLifecycleEvent(String type, Object data) {
         LifecycleEvent event = new LifecycleEvent(this, type, data);
         for (LifecycleListener listener : lifecycleListeners) {
+            log.warn("========组件:" + ComponentUtil.getComponentName(this) + ";具有监听器数量:" + lifecycleListenersCount
+                    + ",事件:" + type + "===============" + "次数:" + (FIREEVENTCOUNT++));
             listener.lifecycleEvent(event);
         }
     }
@@ -138,11 +146,12 @@ public abstract class LifecycleBase implements Lifecycle {
 
     /**
      * 设计模式  模板方法
+     *
      * @throws LifecycleException
      */
     @Override
     public final synchronized void init() throws LifecycleException {
-        log.warn(subClassType+":如果不是 NEW 状态  执行init()  方法就会抛出异常");
+        log.warn(subClassType + ":如果不是 NEW 状态  执行init()  方法就会抛出异常");
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
@@ -150,10 +159,10 @@ public abstract class LifecycleBase implements Lifecycle {
         try {
             //设置状态 INITIALIZING
             setStateInternal(LifecycleState.INITIALIZING, null, false);
-            log.warn("NEW==>"+state.name());
+            log.warn("NEW==>" + state.name());
             initInternal();
             //设置状态 INITIALIZING
-            log.warn(state.name()+"==>"+"INITIALIZED");
+            log.warn(state.name() + "==>" + "INITIALIZED");
             setStateInternal(LifecycleState.INITIALIZED, null, false);
 
         } catch (Throwable t) {
@@ -166,6 +175,7 @@ public abstract class LifecycleBase implements Lifecycle {
      * Sub-classes implement this method to perform any instance initialisation
      * required.
      * 子类实现此方法以执行所需的任何实例初始化。
+     *
      * @throws LifecycleException If the initialisation fails
      */
     protected abstract void initInternal() throws LifecycleException;
@@ -233,7 +243,7 @@ public abstract class LifecycleBase implements Lifecycle {
      * Sub-classes must ensure that the state is changed to
      * {@link LifecycleState#STARTING} during the execution of this method.
      * Changing state will trigger the {@link Lifecycle#START_EVENT} event.
-     *
+     * <p>
      * If a component fails to start it may either throw a
      * {@link LifecycleException} which will cause it's parent to fail to start
      * or it can place itself in the error state in which case {@link #stop()}
@@ -244,8 +254,9 @@ public abstract class LifecycleBase implements Lifecycle {
      * 如果组件无法启动，则可能抛出{@link LifecycleException}，这将导致其父项无法启动，
      * 或者它可能将自身置于错误状态，在这种情况下，将在组件上调用{@link #stop（）}。
      * 失败的组件，但父组件将继续正常启动。
-     *
+     * <p>
      * 子类需要在运行中 设置父类的属性state 来标识子类运行中的状态是否是正常运行的
+     *
      * @throws LifecycleException Start error occurred
      */
     protected abstract void startInternal() throws LifecycleException;
@@ -316,6 +327,7 @@ public abstract class LifecycleBase implements Lifecycle {
      * Changing state will trigger the {@link Lifecycle#STOP_EVENT} event.
      * 子类必须确保在执行此方法期间将状态更改为{@link LifecycleState＃STOPPING}。
      * 更改状态将触发{@link Lifecycle＃STOP_EVENT}事件。
+     *
      * @throws LifecycleException Stop error occurred
      */
     protected abstract void stopInternal() throws LifecycleException;
@@ -454,7 +466,7 @@ public abstract class LifecycleBase implements Lifecycle {
         }
 
         this.state = state;
-        log.warn(subClassType+"设置状态："+this.state.name()+"，回调生命周期方法");
+        log.warn(subClassType + "设置状态：" + this.state.name() + "，回调生命周期方法");
         String lifecycleEvent = state.getLifecycleEvent();
         if (lifecycleEvent != null) {
             fireLifecycleEvent(lifecycleEvent, data);
