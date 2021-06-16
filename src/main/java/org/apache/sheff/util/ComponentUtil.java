@@ -19,6 +19,8 @@ public class ComponentUtil {
         return getComponentName(fullClassName);
     }
 
+
+
     public static void main(String[] args) {
         String componentName = getComponentName("org.apache.catalina.startup.Bootstrap");
         System.out.println(componentName);

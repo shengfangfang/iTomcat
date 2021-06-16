@@ -48,6 +48,7 @@ import org.apache.catalina.util.LifecycleMBeanBase;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.buf.StringCache;
 import org.apache.tomcat.util.res.StringManager;
@@ -799,7 +800,6 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-        log.info(" 6. sstandardserver  开始初始化");
         //注册自己
         super.initInternal();
 
@@ -813,12 +813,12 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         MBeanFactory factory = new MBeanFactory();
         factory.setContainer(this);
         onameMBeanFactory = register(factory, "type=MBeanFactory");
-        log.warn("组件 globalNamingResources 开始初始化");
+
         // Populate the extension validator with JARs from common and shared
         // class loaders  使用来自公共和共享的类加载器的JAR填充扩展验证器
         // Register the naming resources  注册命名资源
         globalNamingResources.init();
-
+        LogOutUtil.log(this,globalNamingResources,"init");
         // Populate the extension validator with JARs from common and shared
         // class loaders
         //// 加载类（来自Catalina.properties，在Bootstrap的initClassLoader方法中将jar路径存放至Url类加载器并将此类加载器存放至Catalina中）
@@ -855,7 +855,9 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
          * 就是可以说是可以开启多个端口的监听  一提供的服务
          * 一个Server 可以用多个service   service 都是基于StardandService
          **/
+        int index = 1;
         for (Service service : services) {
+            LogOutUtil.log(this,service,"初始化第"+(index++)+" service ");
             service.init();
         }
     }

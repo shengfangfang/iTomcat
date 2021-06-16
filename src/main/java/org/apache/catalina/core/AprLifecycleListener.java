@@ -28,6 +28,7 @@ import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.jni.Library;
 import org.apache.tomcat.jni.LibraryNotFoundError;
 import org.apache.tomcat.jni.SSL;
@@ -128,7 +129,8 @@ public class AprLifecycleListener
             synchronized (lock) {
                 init();
                 for (String msg : initInfoLogMessages) {
-                    log.info(msg);
+                    //log.info(msg);
+                    LogOutUtil.log(this,"APR 监听器 禁止输出");
                 }
                 initInfoLogMessages.clear();
                 if (aprAvailable) {

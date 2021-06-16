@@ -32,6 +32,7 @@ import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.apache.catalina.startup.ClassLoaderFactory.RepositoryType;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 
 /**
  * Bootstrap loader for Catalina.  This application constructs a class loader
@@ -268,6 +269,7 @@ public final class Bootstrap {
         // 相当于正式的tomcat 的开始 或者叫入口方法  初始化类加载器
         //这里设置了 classLoader  就会吧ClassLoader 延伸到其所依赖的类中
         // catalinaLoader commonLoader sharedLoader
+        LogOutUtil.log(this,"设置类加载器");
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -279,6 +281,7 @@ public final class Bootstrap {
             log.debug("Loading startup class");
         //为什么这里使用反射呢? 使用 catalinaLoader 去加载类 Catalina 那么Catalina 后续依赖的class 都会
         //是有 这个classLoader  catalinaLoader 来加载  达到 jar 隔离的目的
+        LogOutUtil.log(this,"反射创建Catalina组件");
         Class<?> startupClass = catalinaLoader.loadClass("org.apache.catalina.startup.Catalina");
         Object startupInstance = startupClass.getConstructor().newInstance();
         //使用反射生产Catalina 对象
@@ -293,9 +296,8 @@ public final class Bootstrap {
         Method method =
             startupInstance.getClass().getMethod(methodName, paramTypes);
         method.invoke(startupInstance, paramValues);
-
-        log.info(" 2 .反射创建 Catalina  对象==》 给 catalinaDaemon");
         catalinaDaemon = startupInstance;
+        LogOutUtil.log(this,"Catalina组件 设置类加载器");
     }
 
 
@@ -323,9 +325,10 @@ public final class Bootstrap {
         if (log.isDebugEnabled()) {
             log.debug("Calling startup class " + method);
         }
-        log.info(" 3. 反射方法调用 catalina 的 load 的方法");
+        LogOutUtil.log(this,"######## 反射方法调用 catalina 的 load 的方法 ########");
         //  catalina  的  load 方法
         method.invoke(catalinaDaemon, param);
+        LogOutUtil.log(this,"######## 调用 catalina 的 load 的方法 完成   ########");
     }
 
 
@@ -464,13 +467,13 @@ public final class Bootstrap {
 
         synchronized (daemonLock) {
             if (daemon == null) {
-                log.info("step 1 main..");
+                LogOutUtil.log("Bootstrap","TOMCAT 主方法入口");
                 // Don't set daemon until init() has completed
-                System.out.println(" init  Bootstrap ..");
                 Bootstrap bootstrap = new Bootstrap();
                 try {
-                    log.info(" 1 .bootstrap.init()");
+                    LogOutUtil.log("Bootstrap",">>>>>>>> bootstrap 初始化开始");
                     bootstrap.init();
+                    LogOutUtil.log("Bootstrap",">>>>>>>> bootstrap 初始化结束");
                 } catch (Throwable t) {
                     handleThrowable(t);
                     t.printStackTrace();

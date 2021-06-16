@@ -40,6 +40,7 @@ import org.apache.catalina.security.SecurityConfig;
 import org.apache.juli.ClassLoaderLogManager;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomcat.util.digester.Rule;
@@ -536,8 +537,6 @@ public class Catalina {
      * Start a new server instance.
      */
     public void load() {
-
-        log.info(" 4  catalina load 方法");
         if (loaded) {
             return;
         }
@@ -554,7 +553,7 @@ public class Catalina {
         //3.1.准备好用来解析server.xml文件需要用的digester。
         // Create and execute our Digester 创建解析器 解析 Server.xml
         Digester digester = createStartDigester();
-        log.info(" 5. 创建了digester 对象 用于解析server.xml");
+        LogOutUtil.log(this,"创建了digester 对象 用于解析server.xml");
 
         InputSource inputSource = null;
         InputStream inputStream = null;
@@ -619,7 +618,10 @@ public class Catalina {
             try {
                 inputSource.setByteStream(inputStream);
                 digester.push(this);
+
+                LogOutUtil.log(this,">>>>>>>>开始解析servel.xml 并开始创建Tomcat 组件  <<<<<< ");
                 digester.parse(inputSource);
+                LogOutUtil.log(this,">>>>>>>>结束解析servel.xml 所需组件创建成功  <<<<<< ");
             } catch (SAXParseException spe) {
                 log.warn("Catalina.start using " + getConfigFile() + ": " +
                         spe.getMessage());
@@ -648,8 +650,9 @@ public class Catalina {
         // Start the new server  server 的实现是tomcat 中唯一的默认的实现是StardandServer
         try {
            // 执行server的init方法，start方法的准备方法 前面的leftCycle 又说
-            System.out.println("StandardServer initing。。。。。。。");
+            LogOutUtil.log(this,server ,"+++++++++ init 开始 +++++++++");
             server.init();
+            LogOutUtil.log(this,server ,"+++++++++ init 完成 +++++++++");
         } catch (LifecycleException e) {
             if (Boolean.getBoolean("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE")) {
                 throw new java.lang.Error(e);

@@ -27,6 +27,7 @@ import org.apache.catalina.LifecycleState;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.sheff.util.ComponentUtil;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
 
@@ -66,7 +67,7 @@ public abstract class LifecycleBase implements Lifecycle {
 
     public LifecycleBase() {
         subClassType = this.getClass().getName();
-        log.warn("初始化完成,对象beanType:" + subClassType + "状态是：" + state.name());
+        LogOutUtil.log(this,"初始化完成,组件:" + ComponentUtil.getComponentName(subClassType) + "状态是：" + state.name());
     }
 
     /**
@@ -137,8 +138,8 @@ public abstract class LifecycleBase implements Lifecycle {
     protected void fireLifecycleEvent(String type, Object data) {
         LifecycleEvent event = new LifecycleEvent(this, type, data);
         for (LifecycleListener listener : lifecycleListeners) {
-            log.warn("========组件:" + ComponentUtil.getComponentName(this) + ";具有监听器数量:" + lifecycleListenersCount
-                    + ",事件:" + type + "===============" + "次数:" + (FIREEVENTCOUNT++));
+//            System.out.println("========组件:" + ComponentUtil.getComponentName(this) + ";具有监听器数量:" + lifecycleListenersCount
+//                    + ",事件:" + type + "===============" + "次数:" + (FIREEVENTCOUNT++));
             listener.lifecycleEvent(event);
         }
     }
@@ -151,23 +152,22 @@ public abstract class LifecycleBase implements Lifecycle {
      */
     @Override
     public final synchronized void init() throws LifecycleException {
-        log.warn(subClassType + ":如果不是 NEW 状态  执行init()  方法就会抛出异常");
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
-
+        LogOutUtil.log(this,"验证状态,执行init;监听器个数" +lifecycleListenersCount);
         try {
             //设置状态 INITIALIZING
             setStateInternal(LifecycleState.INITIALIZING, null, false);
-            log.warn("NEW==>" + state.name());
             initInternal();
             //设置状态 INITIALIZING
-            log.warn(state.name() + "==>" + "INITIALIZED");
             setStateInternal(LifecycleState.INITIALIZED, null, false);
 
+            LogOutUtil.log(this,"设置组件状态state 和触发事件:"+LifecycleState.INITIALIZING+"|"+LifecycleState.INITIALIZED);
         } catch (Throwable t) {
             handleSubClassException(t, "lifecycleBase.initFail", toString());
         }
+
     }
 
 
@@ -466,7 +466,7 @@ public abstract class LifecycleBase implements Lifecycle {
         }
 
         this.state = state;
-        log.warn(subClassType + "设置状态：" + this.state.name() + "，回调生命周期方法");
+        //log.warn(subClassType + "设置状态：" + this.state.name() + "，回调生命周期方法");
         String lifecycleEvent = state.getLifecycleEvent();
         if (lifecycleEvent != null) {
             fireLifecycleEvent(lifecycleEvent, data);
