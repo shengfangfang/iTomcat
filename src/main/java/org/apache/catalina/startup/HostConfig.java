@@ -67,6 +67,7 @@ import org.apache.catalina.security.DeployXmlPermission;
 import org.apache.catalina.util.ContextName;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.buf.UriUtil;
 import org.apache.tomcat.util.digester.Digester;
@@ -991,6 +992,7 @@ public class HostConfig implements LifecycleListener {
         if(log.isInfoEnabled()) {
             startTime = System.currentTimeMillis();
             log.info(sm.getString("hostConfig.deployWar", war.getAbsolutePath()));
+            LogOutUtil.log(this,"部署:"+war.getAbsolutePath());
         }
 
         try {

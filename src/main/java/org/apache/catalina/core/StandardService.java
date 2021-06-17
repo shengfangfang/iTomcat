@@ -527,12 +527,9 @@ public class StandardService extends LifecycleMBeanBase implements Service {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-        log.info(" 7. standardservice init");
         super.initInternal();
 
         if (engine != null) {
-            log.info("8 . standardengine init");
-            log.info("8.1里面会初始化 host context 等组件");
             engine.init();
         }
 
