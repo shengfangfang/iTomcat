@@ -67,7 +67,7 @@ public abstract class LifecycleBase implements Lifecycle {
 
     public LifecycleBase() {
         subClassType = this.getClass().getName();
-        LogOutUtil.log(this,"初始化完成,组件:" + ComponentUtil.getComponentName(subClassType) + "状态是：" + state.name());
+        LogOutUtil.log(this, "构造器完成,组件:" + ComponentUtil.getComponentName(subClassType) + "状态是：" + state.name());
     }
 
     /**
@@ -136,12 +136,23 @@ public abstract class LifecycleBase implements Lifecycle {
      * @param data Data associated with event. 相关的数据
      */
     protected void fireLifecycleEvent(String type, Object data) {
+        //属于构建一个事件 把自己对象穿到事件的对象里面去  再去触发事件
         LifecycleEvent event = new LifecycleEvent(this, type, data);
         for (LifecycleListener listener : lifecycleListeners) {
-//            System.out.println("========组件:" + ComponentUtil.getComponentName(this) + ";具有监听器数量:" + lifecycleListenersCount
-//                    + ",事件:" + type + "===============" + "次数:" + (FIREEVENTCOUNT++));
             listener.lifecycleEvent(event);
         }
+        if( lifecycleListenersCount != 0){
+            String listenerNames = "";
+            int index = 1;
+            for (LifecycleListener listener : lifecycleListeners) {
+                listenerNames += index + "." + ComponentUtil.getComponentName(listener) + "; ";
+                index++;
+            }
+            LogOutUtil.log(this, "监听器个数:" + lifecycleListenersCount + ";具体为[" + listenerNames + "]");
+        }else{
+            LogOutUtil.log(this, "无监听器");
+        }
+
     }
 
 
@@ -155,15 +166,13 @@ public abstract class LifecycleBase implements Lifecycle {
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
-        LogOutUtil.log(this,"验证状态,执行init;监听器个数" +lifecycleListenersCount);
         try {
             //设置状态 INITIALIZING
             setStateInternal(LifecycleState.INITIALIZING, null, false);
             initInternal();
             //设置状态 INITIALIZING
             setStateInternal(LifecycleState.INITIALIZED, null, false);
-
-            LogOutUtil.log(this,"设置组件状态state 和触发事件:"+LifecycleState.INITIALIZING+"|"+LifecycleState.INITIALIZED);
+            LogOutUtil.log(this, "设置组件状态state 和触发事件:" + LifecycleState.INITIALIZING + "|" + LifecycleState.INITIALIZED);
         } catch (Throwable t) {
             handleSubClassException(t, "lifecycleBase.initFail", toString());
         }

@@ -81,8 +81,10 @@ public class VersionLoggerListener implements LifecycleListener {
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
         if (Lifecycle.BEFORE_INIT_EVENT.equals(event.getType())) {
-            //log();
-            LogOutUtil.log(this,"关闭Tomcat 输出相关环境信息");
+            if (LogOutUtil.showLog) {
+                log();
+                LogOutUtil.log(this, "关闭Tomcat 输出相关环境信息");
+            }
         }
     }
 

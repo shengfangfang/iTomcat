@@ -321,9 +321,8 @@ public class Registry implements RegistryMBean, MBeanRegistration {
         if (mb == null) {
             mb = descriptorsByClass.get(name);
             if(mb!=null){
-                LogOutUtil.log(this,mb,"JMX注册");
+                LogOutUtil.log(this,ComponentUtil.getComponentName(name)+" JMX注册");
             }
-//            System.out.println("Mbean 组件名称:"+ ComponentUtil.getComponentName(name) +";  bean is :" + mb);
         }
         return mb;
     }

@@ -37,6 +37,7 @@ import org.apache.catalina.mapper.MapperListener;
 import org.apache.catalina.util.LifecycleMBeanBase;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.res.StringManager;
 
 
@@ -548,9 +549,10 @@ public class StandardService extends LifecycleMBeanBase implements Service {
 
 
         // Initialize our defined Connectors
-        log.info("10. connector  init"  );
+        int index = 1;
         synchronized (connectorsLock) {
             for (Connector connector : connectors) {
+                LogOutUtil.log(this,connector,"第"+(index++)+"个connector init");
                 try {
                     connector.init();
                 } catch (Exception e) {

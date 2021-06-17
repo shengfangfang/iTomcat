@@ -39,6 +39,7 @@ import org.apache.coyote.UpgradeProtocol;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.buf.B2CConverter;
 import org.apache.tomcat.util.buf.CharsetUtil;
@@ -1072,7 +1073,7 @@ public class Connector extends LifecycleMBeanBase  {
         }
 
         try {
-            log.info("11 . protocolHandler  http11nioprotocol  init"  );
+            LogOutUtil.log(this,protocolHandler,"init");
             protocolHandler.init();
         } catch (Exception e) {
             throw new LifecycleException(

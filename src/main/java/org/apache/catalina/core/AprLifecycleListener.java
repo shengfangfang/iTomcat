@@ -129,8 +129,10 @@ public class AprLifecycleListener
             synchronized (lock) {
                 init();
                 for (String msg : initInfoLogMessages) {
-                    //log.info(msg);
-                    LogOutUtil.log(this,"APR 监听器 禁止输出");
+                    if (LogOutUtil.showLog) {
+                        log.info(msg);
+                        LogOutUtil.log(this,"APR 监听器 禁止输出");
+                    }
                 }
                 initInfoLogMessages.clear();
                 if (aprAvailable) {
