@@ -178,7 +178,7 @@ public abstract class AbstractEndpoint<S> {
 
 
     /**
-     * counter for nr of connections handled by an endpoint
+     * counter for nr of connections handled by an endpoint 端点处理的连接的nr的计数器
      */
     private volatile LimitLatch connectionLimitLatch = null;
 
@@ -1139,7 +1139,9 @@ public abstract class AbstractEndpoint<S> {
     public abstract void stopInternal() throws Exception;
 
     public void init() throws Exception {
+        System.out.println("11 . AbstractEndpoint  AbstractEndpoint  init"  );
         if (bindOnInit) {
+            // socket 通讯
             bind();
             bindState = BindState.BOUND_ON_INIT;
         }

@@ -65,6 +65,12 @@ import org.xml.sax.helpers.AttributesImpl;
 
 
 /**
+ * <p>一个<strong> Digester </ strong>通过匹配一系列元素嵌套模式来处理XML输入流，
+ * 以执行在解析开始之前添加的Rule。该软件包的灵感来自Tomcat 3.0和3.1的<code> XmlMapper </ code>类
+ * ，但组织方式有所不同。 </a>以获取更多信息。</ p> <p> <strong>实施说明</ strong>-单个Digester实例一次只能在单个线程的上下文中使用，
+ * 并且必须先完成对<code> parse（）</ code>的调用，甚至可以从同一线程启动另一个调用。
+ * </ p> <p> <strong>实施说明</ strong>-Xerces 2.0中的一个错误.2阻止了对XML模式的支持。
+ * 您需要Xerces 2.1 / 2.3及更高版本才能
  * <p>A <strong>Digester</strong> processes an XML input stream by matching a
  * series of element nesting patterns to execute Rules that have been added
  * prior to the start of parsing.  This package was inspired by the

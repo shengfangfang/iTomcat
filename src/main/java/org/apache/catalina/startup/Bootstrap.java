@@ -32,6 +32,7 @@ import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.apache.catalina.startup.ClassLoaderFactory.RepositoryType;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 
 /**
  * Bootstrap loader for Catalina.  This application constructs a class loader
@@ -268,6 +269,7 @@ public final class Bootstrap {
         // 相当于正式的tomcat 的开始 或者叫入口方法  初始化类加载器
         //这里设置了 classLoader  就会吧ClassLoader 延伸到其所依赖的类中
         // catalinaLoader commonLoader sharedLoader
+        LogOutUtil.log(this,"设置类加载器");
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -279,9 +281,10 @@ public final class Bootstrap {
             log.debug("Loading startup class");
         //为什么这里使用反射呢? 使用 catalinaLoader 去加载类 Catalina 那么Catalina 后续依赖的class 都会
         //是有 这个classLoader  catalinaLoader 来加载  达到 jar 隔离的目的
+        LogOutUtil.log(this,"反射创建Catalina组件");
         Class<?> startupClass = catalinaLoader.loadClass("org.apache.catalina.startup.Catalina");
         Object startupInstance = startupClass.getConstructor().newInstance();
-
+        //使用反射生产Catalina 对象
         // Set the shared extensions class loader
         if (log.isDebugEnabled())
             log.debug("Setting startup class properties");
@@ -293,13 +296,13 @@ public final class Bootstrap {
         Method method =
             startupInstance.getClass().getMethod(methodName, paramTypes);
         method.invoke(startupInstance, paramValues);
-
         catalinaDaemon = startupInstance;
+        LogOutUtil.log(this,"Catalina组件 设置类加载器");
     }
 
 
     /**
-     * Load daemon.
+     * Load daemon.  加载守护程序
      */
     private void load(String[] arguments) throws Exception {
 
@@ -316,12 +319,16 @@ public final class Bootstrap {
             param = new Object[1];
             param[0] = arguments;
         }
+        // 调用  catalinaDaemon  的方法
         Method method =
             catalinaDaemon.getClass().getMethod(methodName, paramTypes);
         if (log.isDebugEnabled()) {
             log.debug("Calling startup class " + method);
         }
+        LogOutUtil.log(this,"######## 反射方法调用 catalina 的 load 的方法 ########");
+        //  catalina  的  load 方法
         method.invoke(catalinaDaemon, param);
+        LogOutUtil.log(this,"######## 调用 catalina 的 load 的方法 完成   ########");
     }
 
 
@@ -361,6 +368,7 @@ public final class Bootstrap {
         }
 
         Method method = catalinaDaemon.getClass().getMethod("start", (Class [])null);
+        log.info("  14 放射调用 Catalina的start 方法");
         method.invoke(catalinaDaemon, (Object [])null);
     }
 
@@ -459,12 +467,13 @@ public final class Bootstrap {
 
         synchronized (daemonLock) {
             if (daemon == null) {
+                LogOutUtil.log("Bootstrap","TOMCAT 主方法入口");
                 // Don't set daemon until init() has completed
-                System.out.println(" init  Bootstrap ..");
                 Bootstrap bootstrap = new Bootstrap();
                 try {
-
+                    LogOutUtil.log("Bootstrap",">>>>>>>> bootstrap 初始化开始");
                     bootstrap.init();
+                    LogOutUtil.log("Bootstrap",">>>>>>>> bootstrap 初始化结束");
                 } catch (Throwable t) {
                     handleThrowable(t);
                     t.printStackTrace();
@@ -475,11 +484,15 @@ public final class Bootstrap {
                 // When running as a service the call to stop will be on a new
                 // thread so make sure the correct class loader is used to
                 // prevent a range of class not found exceptions.
+                //作为服务运行时，停止调用将在新线程上进行，因此请确保使用正确的类加载器来防止一系列未找到的类异常。
                 Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);
             }
         }
-
+        //   daemon = bootstrap;
         try {
+            //因为主要是处理来自shell的不同命令，所以，根据shell的传入的命令行，
+            // 我们可以看到Catalina主要处理来自shell的start和stop命令。
+            // 下面来解析start命令和stop命令的背后，以及Tomcat中提供的一个对xml解析很有用的库Digester。
             String command = "start";
             if (args.length > 0) {
                 command = args[args.length - 1];
@@ -493,7 +506,13 @@ public final class Bootstrap {
                 args[args.length - 1] = "stop";
                 daemon.stop();
             } else if (command.equals("start")) {
+                //开始
                 daemon.setAwait(true);
+                //自己认为不用初始化也可以  单args 参数为空的时候  daemon.load(args); 如果不执行的话 后续的start 方法里面有判断
+                //  不是没有初始化的时候回再次初始化
+                daemon.load(args);
+                log.info("所有组件 初始化 完成  开始调用 所有组件的start 方法");
+                //方法和 load 里面各个组件的初始化时差不多的顺序
                 //容器对象初始化  比如加载server.xml  配置文件等等
                 daemon.load(args);
                 log.warn("Server 加载完成 主要是解析Server.xml 文件 然后对文件内配置生成组件对象,在在对象内设置一些基于配置为配置 " +

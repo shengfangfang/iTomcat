@@ -52,7 +52,9 @@ public abstract class LifecycleMBeanBase extends LifecycleBase
     @Override
     protected void initInternal() throws LifecycleException {
         // If oname is not null then registration has already happened via
-        // preRegister().
+        // preRegister(). mserver 对象是 JmxMBeanServer  是一个jdk 的
+        //实际上是对自己 bean的一些信息添加到java 中  这些信息是 getObjectNameKeyProperties()
+        //是意为是感慨的形式范彪了文章
         if (oname == null) {
             mserver = Registry.getRegistry(null, null).getMBeanServer();
 

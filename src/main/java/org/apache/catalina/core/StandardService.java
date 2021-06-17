@@ -411,7 +411,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
      */
     @Override
     protected void startInternal() throws LifecycleException {
-
+        log.info("  16 放射调用 standartservice 的 startInternal 方法");
         if(log.isInfoEnabled())
             log.info(sm.getString("standardService.start.name", this.name));
         setState(LifecycleState.STARTING);
@@ -527,10 +527,12 @@ public class StandardService extends LifecycleMBeanBase implements Service {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-
+        log.info(" 7. standardservice init");
         super.initInternal();
 
         if (engine != null) {
+            log.info("8 . standardengine init");
+            log.info("8.1里面会初始化 host context 等组件");
             engine.init();
         }
 
@@ -539,13 +541,17 @@ public class StandardService extends LifecycleMBeanBase implements Service {
             if (executor instanceof JmxEnabled) {
                 ((JmxEnabled) executor).setDomain(getDomain());
             }
+            log.info("9 . StandardThreadExecutor");
             executor.init();
         }
 
         // Initialize mapper listener
         mapperListener.init();
 
+
+
         // Initialize our defined Connectors
+        log.info("10. connector  init"  );
         synchronized (connectorsLock) {
             for (Connector connector : connectors) {
                 try {

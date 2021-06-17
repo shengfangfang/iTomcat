@@ -40,6 +40,7 @@ import org.apache.catalina.security.SecurityConfig;
 import org.apache.juli.ClassLoaderLogManager;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomcat.util.digester.Rule;
@@ -52,20 +53,21 @@ import org.xml.sax.SAXParseException;
 
 
 /**
- * Startup/Shutdown shell program for Catalina.  The following command line
+ * Startup/Shutdown shell program for Catalina.  The following command line  Catalina的启动/关闭Shell程序。可以识别以下命令行选项：
  * options are recognized:
  * <ul>
  * <li><b>-config {pathname}</b> - Set the pathname of the configuration file
  *     to be processed.  If a relative path is specified, it will be
  *     interpreted as relative to the directory pathname specified by the
  *     "catalina.base" system property.   [conf/server.xml]</li>
- * <li><b>-help</b>      - Display usage information.</li>
- * <li><b>-nonaming</b>  - Disable naming support.</li>
- * <li><b>configtest</b> - Try to test the config</li>
- * <li><b>start</b>      - Start an instance of Catalina.</li>
- * <li><b>stop</b>       - Stop the currently running instance of Catalina.</li>
+ * <li><b>-help</b>      - Display usage information.</li>  显示使用情况信息
+ * <li><b>-nonaming</b>  - Disable naming support.</li>  禁用命名支持
+ * <li><b>configtest</b> - Try to test the config</li>  尝试测试配置
+ * <li><b>start</b>      - Start an instance of Catalina.</li>  启动Catalina的实例
+ * <li><b>stop</b>       - Stop the currently running instance of Catalina.</li>  停止当前正在运行的Catalina实例
  * </ul>
- *
+ * 是Tomcat的核心组件，是Servlet容器，Catalina包含了所有的容器组件，其他模块均为Catalina提供支撑。通过Coyote模块提供连接通信，
+ * Jasper模块提供JSP引擎，Naming提供JNDI服务，Juli提供日志服务。
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  */
@@ -82,17 +84,18 @@ public class Catalina {
     // ----------------------------------------------------- Instance Variables
 
     /**
-     * Use await.
+     * Use await. 用于await的flag
      */
     protected boolean await = false;
 
     /**
      * Pathname to the server configuration file.
+     * Server配置的文件路
      */
     protected String configFile = "conf/server.xml";
 
     // XXX Should be moved to embedded
-    /**
+    /**  此server的shared 类加载器
      * The shared extensions class loader for this server.
      */
     protected ClassLoader parentClassLoader =
@@ -101,30 +104,31 @@ public class Catalina {
 
     /**
      * The server component we are starting or stopping.
+     * Server组件
      */
     protected Server server = null;
 
 
     /**
-     * Use shutdown hook flag.
+     * Use shutdown hook flag.  使用shutdown钩子的flag
      */
     protected boolean useShutdownHook = true;
 
 
     /**
-     * Shutdown hook.
+     * Shutdown hook.  Shutdown钩子实例
      */
     protected Thread shutdownHook = null;
 
 
     /**
-     * Is naming enabled ?
+     * Is naming enabled ? 是否启用命名？
      */
     protected boolean useNaming = true;
 
 
     /**
-     * Prevent duplicate loads.
+     * Prevent duplicate loads.  预防重复加载的标记字段
      */
     protected boolean loaded = false;
 
@@ -274,6 +278,7 @@ public class Catalina {
 
     /**
      * Create and configure the Digester we will be using for startup.
+     * 创建和配置我们将用于启动的Digester。  解析server.xml的主要摘要
      * @return the main digester to parse server.xml
      */
     protected Digester createStartDigester() {
@@ -532,21 +537,23 @@ public class Catalina {
      * Start a new server instance.
      */
     public void load() {
-
         if (loaded) {
             return;
         }
         loaded = true;
 
         long t1 = System.nanoTime();
-
+        //  什么都没做
         initDirs();
 
         // Before digester - it may be needed
         initNaming();
 
+        //3.用digester解析server.xml文件，把配置文件中的配置解析成java对象
+        //3.1.准备好用来解析server.xml文件需要用的digester。
         // Create and execute our Digester 创建解析器 解析 Server.xml
         Digester digester = createStartDigester();
+        LogOutUtil.log(this,"创建了digester 对象 用于解析server.xml");
 
         InputSource inputSource = null;
         InputStream inputStream = null;
@@ -611,7 +618,10 @@ public class Catalina {
             try {
                 inputSource.setByteStream(inputStream);
                 digester.push(this);
+
+                LogOutUtil.log(this,">>>>>>>>开始解析servel.xml 并开始创建Tomcat 组件  <<<<<< ");
                 digester.parse(inputSource);
+                LogOutUtil.log(this,">>>>>>>>结束解析servel.xml 所需组件创建成功  <<<<<< ");
             } catch (SAXParseException spe) {
                 log.warn("Catalina.start using " + getConfigFile() + ": " +
                         spe.getMessage());
@@ -629,17 +639,20 @@ public class Catalina {
                 }
             }
         }
-
-        getServer().setCatalina(this);
-        getServer().setCatalinaHome(Bootstrap.getCatalinaHomeFile());
-        getServer().setCatalinaBase(Bootstrap.getCatalinaBaseFile());
+        //服务器设置 StandardServer  设置参数  为子组件Server设置一些值
+        server.setCatalina(this);
+        server.setCatalinaHome(Bootstrap.getCatalinaHomeFile());
+        server.setCatalinaBase(Bootstrap.getCatalinaBaseFile());
 
         // Stream redirection 流重定向
         initStreams();
 
         // Start the new server  server 的实现是tomcat 中唯一的默认的实现是StardandServer
         try {
-            getServer().init();
+           // 执行server的init方法，start方法的准备方法 前面的leftCycle 又说
+            LogOutUtil.log(this,server ,"+++++++++ init 开始 +++++++++");
+            server.init();
+            LogOutUtil.log(this,server ,"+++++++++ init 完成 +++++++++");
         } catch (LifecycleException e) {
             if (Boolean.getBoolean("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE")) {
                 throw new java.lang.Error(e);
@@ -674,8 +687,9 @@ public class Catalina {
      * Start a new server instance.
      */
     public void start() {
-
+        //调用 getServer()  方法 之前已经初始化了一个 standardserver  而且初始化的状态是 初始化完成  initialzed
         if (getServer() == null) {
+            //如果是没有在初始化一遍
             load();
         }
 
@@ -811,7 +825,7 @@ public class Catalina {
 
 
     protected void initNaming() {
-        // Setting additional variables
+        // Setting additional variables  设置其他变量  Naming提供JNDI服务
         if (!useNaming) {
             log.info(sm.getString("catalina.noNaming"));
             System.setProperty("catalina.useNaming", "false");

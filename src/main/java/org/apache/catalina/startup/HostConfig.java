@@ -82,6 +82,8 @@ import org.apache.tomcat.util.res.StringManager;
  */
 public class HostConfig implements LifecycleListener {
 
+
+
     private static final Log log = LogFactory.getLog(HostConfig.class);
 
     /**

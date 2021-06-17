@@ -28,6 +28,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
@@ -80,7 +81,8 @@ public class VersionLoggerListener implements LifecycleListener {
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
         if (Lifecycle.BEFORE_INIT_EVENT.equals(event.getType())) {
-            log();
+            //log();
+            LogOutUtil.log(this,"关闭Tomcat 输出相关环境信息");
         }
     }
 

@@ -38,6 +38,8 @@ import javax.management.ObjectName;
 
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.sheff.util.ComponentUtil;
+import org.apache.sheff.util.LogOutUtil;
 import org.apache.tomcat.util.modeler.modules.ModelerSource;
 import org.apache.tomcat.util.res.StringManager;
 
@@ -315,12 +317,14 @@ public class Registry implements RegistryMBean, MBeanRegistration {
      * @since 1.0
      */
     public ManagedBean findManagedBean(String name) {
-        // XXX Group ?? Use Group + Type
-        System.out.println("descriptors :" + descriptors.size());
         ManagedBean mb = descriptors.get(name);
-        System.out.println("Mbean  name:"+ name +";  bean is :" + mb);
-        if (mb == null)
+        if (mb == null) {
             mb = descriptorsByClass.get(name);
+            if(mb!=null){
+                LogOutUtil.log(this,mb,"JMX注册");
+            }
+//            System.out.println("Mbean 组件名称:"+ ComponentUtil.getComponentName(name) +";  bean is :" + mb);
+        }
         return mb;
     }
 
