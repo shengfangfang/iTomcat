@@ -393,6 +393,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
      * Wait until a proper shutdown command is received, then return.
      * This keeps the main thread alive - the thread pool listening for http
      * connections is daemon threads.
+     * 等到收到正确的关机命令，然后返回。 这使主线程保持活动状态 - 侦听 http 连接的线程池是守护线程。
      */
     @Override
     public void await() {
@@ -759,13 +760,15 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         fireLifecycleEvent(CONFIGURE_START_EVENT, null);
         setState(LifecycleState.STARTING);
 
+        LogOutUtil.log(this," globalNamingResources.start()");
         globalNamingResources.start();
 
-        // Start our defined Services
-        log.info("  15 放射调用 standartserver 的 startInternal 方法");
+        int index = 1;
         synchronized (servicesLock) {
             for (Service service : services) {
+                LogOutUtil.log(this,service,"第"+index+"个服务start();");
                 service.start();
+                index++;
             }
         }
     }

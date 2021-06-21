@@ -22,11 +22,11 @@ public class LogOutUtil {
 
     }
 
-    public static void log(Object obj, Object filedComponent, String msg) {
+    public static void log(Object obj, Object filedComponent, String msgOrStatus) {
         if(utilLog){
             String componentName = ComponentUtil.getComponentName(obj);
             String filedComponentName = ComponentUtil.getComponentName(filedComponent);
-            log(componentName, filedComponentName + " " + msg);
+            log(componentName, filedComponentName + " " + msgOrStatus);
         }
 
     }

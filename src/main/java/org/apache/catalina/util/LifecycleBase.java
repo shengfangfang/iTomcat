@@ -191,7 +191,7 @@ public abstract class LifecycleBase implements Lifecycle {
 
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 标准的生命周期方法  改变组件的状态 设置组件的状态  已经触发一些监听器的调用
      */
     @Override
     public final synchronized void start() throws LifecycleException {
@@ -225,7 +225,7 @@ public abstract class LifecycleBase implements Lifecycle {
         try {
             //状态切换
             setStateInternal(LifecycleState.STARTING_PREP, null, false);
-            //
+            //每个实际的实现类 实现的方法 调用自己的实现
             startInternal();
             if (state.equals(LifecycleState.FAILED)) {
                 // This is a 'controlled' failure. The component put itself into the
@@ -418,6 +418,8 @@ public abstract class LifecycleBase implements Lifecycle {
      *
      * @param state The new state for this component
      * @throws LifecycleException when attempting to set an invalid state
+     * 为子类提供更新组件状态的机制。 调用此方法将自动触发任何关联的Lifecycle事件。 它还将检查任何尝试的状态转换对于子类是否有效
+     * 简而言之 就是组件的生命周期的改变会触发一些监听器的调用
      */
     protected synchronized void setState(LifecycleState state) throws LifecycleException {
         setStateInternal(state, null, true);

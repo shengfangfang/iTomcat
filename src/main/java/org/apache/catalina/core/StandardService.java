@@ -418,9 +418,12 @@ public class StandardService extends LifecycleMBeanBase implements Service {
         setState(LifecycleState.STARTING);
 
         // Start our defined Container first
+        int index = 1;
         if (engine != null) {
             synchronized (engine) {
+                LogOutUtil.log(this,engine,"start()");
                 engine.start();
+                index++;
             }
         }
 
