@@ -343,7 +343,7 @@ public final class Bootstrap {
     }
 
 
-    // ----------------------------------------------------------- Main Program
+    // ----------------------------------------------------------- Main Program===============================
 
 
     /**
@@ -368,7 +368,7 @@ public final class Bootstrap {
         }
 
         Method method = catalinaDaemon.getClass().getMethod("start", (Class [])null);
-        log.info("  14 放射调用 Catalina的start 方法");
+        LogOutUtil.log(this,"反射调用 Catalina的start 方法");
         method.invoke(catalinaDaemon, (Object [])null);
     }
 
@@ -511,13 +511,12 @@ public final class Bootstrap {
                 //自己认为不用初始化也可以  单args 参数为空的时候  daemon.load(args); 如果不执行的话 后续的start 方法里面有判断
                 //  不是没有初始化的时候回再次初始化
                 daemon.load(args);
-                log.info("所有组件 初始化 完成  开始调用 所有组件的start 方法");
+                LogOutUtil.log("Bootstrap","所有组件 初始化 完成  开始调用 所有组件的start 方法");
                 //方法和 load 里面各个组件的初始化时差不多的顺序
                 //容器对象初始化  比如加载server.xml  配置文件等等
-                daemon.load(args);
-                log.warn("Server 加载完成 主要是解析Server.xml 文件 然后对文件内配置生成组件对象,在在对象内设置一些基于配置为配置 " +
+                LogOutUtil.log("Bootstrap","Server 加载完成 主要是解析Server.xml 文件 然后对文件内配置生成组件对象,在在对象内设置一些基于配置为配置 " +
                         "然后再对组件使用JMX 注册  ");
-                log.warn("Server 开启中... 开启完成后使得组件可用");
+                LogOutUtil.log("Bootstrap","Server 开启中... 开启完成后使得组件可用");
                 daemon.start();
                 if (null == daemon.getServer()) {
                     System.exit(1);
